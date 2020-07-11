@@ -1,0 +1,4 @@
+{
+  "port": 3002,
+  "static": "'./node_modules/json-server/public'"
+}
