@@ -1,21 +1,16 @@
 import React, { memo, useState } from 'react';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { invoicesApi } from '../apis/invoices-api';
-import { vendorsApi } from '../apis/vendors-api';
+import { apiService } from '../apis/api-service';
 import { PaymentsTable } from '../components/PaymentsTable';
 import { useAppConfigContext } from '../contexts/AppConfigContext';
-import {
-  PaymentsContextState,
-  usePaymentsContext,
-} from '../contexts/PaymentsContext';
-import { useTableConfigContext } from '../contexts/TableConfigContext';
+import { usePaymentsContext } from '../contexts/PaymentsContext';
 import { Invoice } from '../models/Invoice';
 import { Payment } from '../models/Payment';
 import { Vendor } from '../models/Vendor';
 import { getApiResponse } from '../utils/get-api-response';
 import { useApiCall } from '../utils/hooks/use-api-call';
-import { ApiResponse, ApiResponseStatus } from '../utils/types';
+import { ApiResponseStatus } from '../utils/types';
 import { LoadingContainer } from '../utils/ui/LoadingContainer';
 
 function mapToPayments([invoices, vendors]: [Invoice[], Vendor[]]) {
@@ -39,20 +34,17 @@ export const PaymentsTableContainer: React.FC = memo(() => {
     dispatcher,
   } = usePaymentsContext();
   const { endpoints } = useAppConfigContext();
-  const tableConfig = useTableConfigContext();
 
-  const [apiState, setApiState] = useState<ApiResponse<PaymentsContextState>>(
-    {} as ApiResponse,
-  );
-  const retryFn = useApiCall(
+  const [tableLoading, setTableLoading] = useState(true);
+
+  const { state: apiState, retryFn } = useApiCall(
     getApiResponse(
       forkJoin([
-        invoicesApi.get(endpoints['call2'].endpoint),
-        vendorsApi.get(endpoints['call3'].endpoint),
+        apiService.get<Invoice>(endpoints['call2'].endpoint),
+        apiService.get<Vendor>(endpoints['call3'].endpoint),
       ]).pipe(map(mapToPayments)),
       { payments: [] },
     ),
-    setApiState,
   );
 
   React.useEffect(() => {
@@ -62,7 +54,12 @@ export const PaymentsTableContainer: React.FC = memo(() => {
         payload: apiState.data,
       });
     }
-  }, [apiState.data, apiState.status, dispatcher]);
+    setTableLoading(
+      !Object.keys(apiState).length ||
+        apiState.status === ApiResponseStatus.Loading ||
+        (apiState.status === ApiResponseStatus.Success && !payments.length),
+    );
+  }, [apiState, apiState.data, apiState.status, dispatcher, payments.length]);
 
   const onPayClick = React.useCallback(
     (payment: Payment) => () => {
@@ -75,21 +72,13 @@ export const PaymentsTableContainer: React.FC = memo(() => {
     <>
       <LoadingContainer
         error={apiState?.error}
-        loading={
-          !Object.keys(apiState).length ||
-          apiState.status === ApiResponseStatus.Loading ||
-          (apiState.status === ApiResponseStatus.Success && !payments.length)
-        }
+        loading={tableLoading}
         retryEnabled={Boolean(
           endpoints['call2'].retryEnabled && endpoints['call3'].retryEnabled,
         )}
         onRetry={retryFn}
       >
-        <PaymentsTable
-          payments={payments}
-          tableConfig={tableConfig}
-          onPay={onPayClick}
-        />
+        <PaymentsTable payments={payments} onPay={onPayClick} />
       </LoadingContainer>
     </>
   );

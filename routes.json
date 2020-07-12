@@ -2,6 +2,5 @@
   "/invoices/*": "/invoices",
   "/vendors/*": "/vendors",
   "/app/config": "/appConfig",
-  "/credit/apply": "/credit/apply",
-  "/payment": "/payment"
+  "/credit/apply": "/credit"
 }

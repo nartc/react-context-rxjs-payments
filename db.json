@@ -111,7 +111,7 @@
       "vendorId": "W1",
       "quantity": 25,
       "product": "Sanitizer",
-      "amountBal": 25.0,
+      "amountBal": 25,
       "amountDue": 12.25,
       "invoiceDate": "03/31/2020"
     },
@@ -129,7 +129,7 @@
     {
       "vendorId": "D1",
       "vendorName": "Delmonte",
-      "creditBal": 600.0
+      "creditBal": 600
     },
     {
       "vendorId": "T1",
@@ -142,7 +142,9 @@
     },
     {
       "vendorId": "G1",
-      "creditBal": 0.0
+      "creditBal": 0
     }
-  ]
+  ],
+  "payment": {},
+  "credit": {}
 }
