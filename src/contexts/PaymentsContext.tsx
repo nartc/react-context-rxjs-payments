@@ -13,7 +13,10 @@ export type PaymentsContextActions =
       type: 'SET_PAYMENTS';
       payload: PaymentsContextState;
     }
-  | { type: 'SET_PAYMENT'; payload: Payment }
+  | {
+      type: 'SET_PAYMENT';
+      payload: { payment: Payment; adjustEnabled: boolean };
+    }
   | { type: 'SET_MODAL_TYPE'; payload?: 'adjustment' | 'payment' }
   | { type: 'APPLY_CREDIT' }
   | { type: 'PAY' };
@@ -68,7 +71,14 @@ const paymentsContextReducer: React.Reducer<
         modalType: action.payload,
       };
     case 'SET_PAYMENT':
-      return { ...prevState, payment: action.payload };
+      const { payment, adjustEnabled } = action.payload;
+      let modalType: 'adjustment' | 'payment';
+      if (payment.creditBal > 0) {
+        modalType = adjustEnabled ? 'adjustment' : 'payment';
+      } else {
+        modalType = 'payment';
+      }
+      return { ...prevState, payment, modalType };
     case 'SET_PAYMENTS':
       return { ...prevState, ...action.payload };
     default:

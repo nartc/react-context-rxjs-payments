@@ -15,7 +15,7 @@ interface Props {
 const App: React.FC<Props> = ({ appConfig, tableConfig }) => (
   <AppConfigContextProvider {...appConfig}>
     <TableConfigContextProvider {...tableConfig}>
-      <Row style={{ padding: '2rem' }}>
+      <Row style={{ padding: '2rem', width: '100%' }}>
         <Col span={24}>
           <Card>
             <MainTableContainer />

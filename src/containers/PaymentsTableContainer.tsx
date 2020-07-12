@@ -5,6 +5,7 @@ import { apiService } from '../apis/api-service';
 import { PaymentsTable } from '../components/PaymentsTable';
 import { useAppConfigContext } from '../contexts/AppConfigContext';
 import { usePaymentsContext } from '../contexts/PaymentsContext';
+import { useTableConfigContext } from '../contexts/TableConfigContext';
 import { Invoice } from '../models/Invoice';
 import { Payment } from '../models/Payment';
 import { Vendor } from '../models/Vendor';
@@ -34,6 +35,7 @@ export const PaymentsTableContainer: React.FC = memo(() => {
     dispatcher,
   } = usePaymentsContext();
   const { endpoints } = useAppConfigContext();
+  const {adjustEnabled} = useTableConfigContext();
 
   const [tableLoading, setTableLoading] = useState(true);
 
@@ -63,9 +65,9 @@ export const PaymentsTableContainer: React.FC = memo(() => {
 
   const onPayClick = React.useCallback(
     (payment: Payment) => () => {
-      dispatcher({ type: 'SET_PAYMENT', payload: payment });
+      dispatcher({ type: 'SET_PAYMENT', payload: { payment, adjustEnabled } });
     },
-    [dispatcher],
+    [dispatcher, adjustEnabled],
   );
 
   return (

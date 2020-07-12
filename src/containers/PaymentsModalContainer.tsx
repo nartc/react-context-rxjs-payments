@@ -1,30 +1,16 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { take } from 'rxjs/operators';
 import { apiService } from '../apis/api-service';
 import { PaymentsModal } from '../components/PaymentsModal';
 import { useAppConfigContext } from '../contexts/AppConfigContext';
 import { usePaymentsContext } from '../contexts/PaymentsContext';
-import { useTableConfigContext } from '../contexts/TableConfigContext';
 
-export const PaymentsModalContainer = () => {
+export const PaymentsModalContainer = memo(() => {
   const {
     state: { payment, modalType },
     dispatcher,
   } = usePaymentsContext();
-  const { adjustEnabled } = useTableConfigContext();
   const { endpoints } = useAppConfigContext();
-
-  React.useEffect(() => {
-    if (payment) {
-      let type: 'adjustment' | 'payment';
-      if (payment.creditBal > 0) {
-        type = adjustEnabled ? 'adjustment' : 'payment';
-      } else {
-        type = 'payment';
-      }
-      dispatcher({ type: 'SET_MODAL_TYPE', payload: type });
-    }
-  }, [payment, adjustEnabled, dispatcher]);
 
   const cancel = React.useCallback(() => {
     dispatcher({ type: 'SET_MODAL_TYPE', payload: undefined });
@@ -60,4 +46,4 @@ export const PaymentsModalContainer = () => {
       onSubmit={submit}
     />
   );
-};
+});
